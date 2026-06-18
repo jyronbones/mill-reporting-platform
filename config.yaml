@@ -1,0 +1,65 @@
+# =============================================================================
+# Mill Operational Data Platform — master configuration
+# Single source of truth for the simulator, loader, and DQ engine.
+# Everything below is tunable; edit and re-run `python -m mill <command>`.
+# =============================================================================
+
+database:
+  # Override at runtime with the MILL_DB_URL environment variable.
+  # Default targets the Dockerized Postgres in docker-compose.yml.
+  default_url: "postgresql+psycopg://mill:mill@localhost:5433/mill"
+
+simulation:
+  start: "2025-03-01T00:00:00"   # UTC; first reading timestamp
+  duration_days: 90              # length of the simulated campaign
+  interval_seconds: 60           # historian sampling interval (1 min)
+  seed: 42                       # master RNG seed -> fully reproducible
+  nameplate_tph: 750.0           # plant nameplate throughput (t/h)
+
+# Process model parameters. These set the *clean* physical behaviour;
+# the relationships between them are coded in simulator/flowsheet.py.
+plant:
+  head_grade_gpt: 1.45           # mean gold head grade (g/t)
+  head_grade_drift: 0.18         # std of slow geological random walk
+  target_p80_um: 106.0           # grind target P80 (microns)
+  base_recovery_pct: 90.5        # recovery at reference grade/grind/throughput
+  specific_energy_kwh_t: 12.5    # mill specific energy at reference (kWh/t)
+  mill_load_pct: 30.0            # mill volumetric load setpoint (%)
+  cyanide_dose_kgpt: 0.45        # reference cyanide addition (kg/t)
+  lime_dose_kgpt: 0.85           # reference lime addition (kg/t)
+  idle_power_kw: 250.0           # standby power draw when not milling
+
+shifts:
+  pattern: "two_twelve"          # 2 x 12h shifts: Day 06:00-18:00, Night 18:00-06:00
+  day_start_hour: 6
+  crews: ["A", "B", "C", "D"]    # rotating roster
+
+downtime:
+  planned_per_week: 1            # planned maintenance windows per week
+  planned_hours: 6.0            # typical planned window length (h)
+  unplanned_per_week: 2.5        # expected unplanned trips per week
+  unplanned_hours_mean: 1.5     # mean unplanned outage length (h)
+  ramp_minutes: 20               # ramp up/down transition length
+
+# Deliberately seeded data-quality faults the DQ engine must later catch.
+# Rates are expressed per simulated day unless noted.
+faults:
+  out_of_range_per_day: 0.6      # impossible values (recovery>100, neg throughput)
+  stuck_sensor_per_week: 1.5     # frozen-sensor episodes
+  stuck_minutes: 90              # length of a frozen-sensor episode
+  gap_per_day: 0.8               # dropped-timestamp episodes (missing data)
+  gap_minutes: 25                # length of a gap
+  duplicate_per_day: 0.5         # duplicated-timestamp episodes
+  bad_flag_per_day: 1.2          # historian Bad/Questionable quality flags
+  massbalance_shift_rate: 0.04   # fraction of shifts with a metal-accounting break
+  massbalance_tails_bias: 1.6    # tails-grade multiplier applied to broken shifts
+
+# Mass-balance reconciliation tolerance: |feed - (recovered + tails)| / feed.
+reconciliation:
+  tolerance_pct: 3.0
+
+# Data-quality rule parameters.
+dq:
+  stuck_window_minutes: 60       # window for variance-based stuck detection
+  stuck_min_repeat: 30           # identical-value run length that trips the rule
+  good_flag_target_pct: 98.0     # minimum acceptable % Good per tag/shift

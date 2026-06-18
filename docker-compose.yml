@@ -1,0 +1,25 @@
+# Stands up the warehouse Postgres that Power BI and the loader connect to.
+#   docker compose up -d
+# Then:  python -m mill all
+services:
+  postgres:
+    image: postgres:16
+    container_name: mill_warehouse
+    environment:
+      POSTGRES_USER: mill
+      POSTGRES_PASSWORD: mill
+      POSTGRES_DB: mill
+    ports:
+      # Host 5433 -> container 5432, to avoid clashing with a native
+      # PostgreSQL install that may already own host port 5432.
+      - "5433:5432"
+    volumes:
+      - milldata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mill -d mill"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  milldata:
