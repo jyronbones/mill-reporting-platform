@@ -1,14 +1,14 @@
 # Power BI Report
 
-A three-page operational report for the mill reporting platform, built in Power BI Desktop against the Postgres KPI views. It covers mill performance, metallurgy, and data quality over the 90-day campaign.
+A three-page operational report for the mill reporting platform, built in Power BI Desktop on the Postgres KPI views. It covers mill performance, metallurgy, and data quality across the 90-day campaign.
 
-*1.40 Mt milled · 60,889 oz poured · 90.6% recovery · 93.8% availability*
+Over the campaign: 1.40 Mt milled, 60,889 oz poured, 90.6% recovery, 93.8% availability.
 
 ## Pages
 
 ### Operations
 
-Headline KPIs — tonnes milled, recovery, gold poured, availability — above throughput, recovery, and cumulative-gold trends. Throughput dips mark downtime events, and day and night shifts are overlaid on each trend.
+Headline KPIs (tonnes milled, recovery, gold poured, availability) over throughput, recovery, and cumulative-gold trends. Throughput dips mark downtime, and day and night shifts are overlaid on each trend.
 
 ![Operations Overview](screenshots/01_operations_overview.png)
 
@@ -20,13 +20,13 @@ Recovery plotted against head grade and against grind P80, each with a fitted tr
 
 ### Data Quality
 
-Completeness per sensor tag, with tags below threshold flagged. Findings are grouped by rule and severity, and a mass-balance reconciliation table lists the shifts where gold in didn't equal gold out. Cards summarise overall completeness, total findings, and failed-shift count.
+Completeness per sensor tag, with tags below threshold flagged. Findings are grouped by rule and severity, and a mass-balance table lists the shifts where gold in didn't equal gold out. Cards summarize overall completeness, total findings, and failed-shift count.
 
 ![Data Quality](screenshots/03_data_quality.png)
 
 ## Model
 
-Every numeric KPI is a measure, not a raw column. Per-shift values (recovery, grade, grind) are tonnage-weighted rather than flat-averaged, so multi-shift totals stay correct. A dedicated `Calendar` table drives the date axes and the cumulative running totals, and raw fact columns are hidden so only measures and slicer fields are exposed. Date, shift, and crew slicers are synced across all three pages.
+Every numeric KPI is a measure, not a raw column. Per-shift values (recovery, grade, grind) are tonnage-weighted rather than flat-averaged, so multi-shift totals stay correct. A dedicated `Calendar` table drives the date axes and cumulative totals, and raw fact columns are hidden so only measures and slicer fields are exposed. Date, shift, and crew slicers are synced across all three pages.
 
 ## Running it
 
