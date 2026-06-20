@@ -131,6 +131,18 @@ The suite (on a short, seeded SQLite campaign) covers:
 
 ---
 
+## Governance
+
+Three artifacts in `docs/` are generated from the live schema and code by `python -m mill docs`, so they stay in step with what's deployed:
+
+- [`data_dictionary.md`](docs/data_dictionary.md) — every table and column with type, nullability, description, and source, introspected from the warehouse schema.
+- [`kpi_definitions.md`](docs/kpi_definitions.md) — each KPI with its formula, grain, source tags, and owner.
+- [`lineage.md`](docs/lineage.md) — end-to-end lineage from source to report as a Mermaid diagram, with a layer-responsibility table.
+
+Regenerate them after any schema change with `python -m mill docs`; the test suite checks they build cleanly.
+
+---
+
 ## Layout
 
 ```
@@ -148,10 +160,6 @@ sql/
 docs/                    generated governance artifacts
 tests/                   pytest suite
 ```
-
-See [`docs/lineage.md`](docs/lineage.md) for the end-to-end lineage diagram,
-[`docs/kpi_definitions.md`](docs/kpi_definitions.md) for KPI formulas, and
-[`docs/data_dictionary.md`](docs/data_dictionary.md) for the schema reference.
 
 ---
 
